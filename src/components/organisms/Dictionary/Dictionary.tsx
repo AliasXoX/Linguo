@@ -1,0 +1,282 @@
+'use client';
+import React, { useState } from 'react';
+import { ModalWrapper } from '@/components/molecules/ModalWrapper/ModalWrapper';
+import { Icon } from '@/components/atoms/Icon/Icon';
+import Toggle from 'react-styled-toggle';
+import { useMediaQuery } from 'react-responsive';
+
+export interface DictionaryProps extends React.HTMLAttributes<HTMLDivElement> {
+    /** What background color to use */
+    backgroundColor?: string;
+    words: Array<{
+        id: number
+        ch: string;
+        pinyin: string;
+        fr: string;
+    }>;
+    page: number;
+    nextPage?: () => void;
+    prevPage?: () => void;
+    disableNext?: boolean;
+    disablePrev?: boolean;
+    editAction?: (formData: FormData) => void;
+    deleteAction?: (id: number) => void;
+    addAction?: (formData: FormData) => void;
+    onChangeOrder?: () => void;
+}
+
+const EditModal = ({ word, isOpen, editAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string }; isOpen: boolean; editAction?: (formData: FormData) => void; onClose?: () => void }) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        await editAction?.(formData);
+        onClose?.();
+    };
+
+    return (
+        <ModalWrapper isOpen={isOpen}>
+            <div className="relative flex flex-col items-center justify-center rounded-2xl bg-white px-3 py-2">
+                <span className="font-bold text-xl">Edit Word</span>
+                <button className="absolute top-2 right-2 p-1 rounded-full cursor-pointer hover:bg-[var(--color-neutral-lighter)]" onClick={() => onClose?.()}>
+                    <Icon name="cross" className="w-5"/>
+                </button>
+                <form onSubmit={handleSubmit} className="flex flex-col w-full gap-3">
+                    <input type="hidden" name="id" value={word.id} />
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="ch" className="block text-sm font-medium text-gray-700">Simplified Chinese</label>
+                        <input required type="text" name="ch" defaultValue={word.ch} className=" capitalize border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="pinyin" className="block text-sm font-medium text-gray-700">Pinyin</label>
+                        <input required type="text" name="pinyin" defaultValue={word.pinyin} className=" capitalize border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="fr" className="block text-sm font-medium text-gray-700">French</label>
+                        <input required type="text" name="fr" defaultValue={word.fr} className=" capitalize border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <button type="submit" className="bg-[var(--color-action-dark)] px-3 py-1 rounded-lg cursor-pointer text-md text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)] mt-2">
+                        Save
+                    </button>
+                </form>
+            </div>
+        </ModalWrapper>
+    );
+}
+
+const Delete = ({ word, isOpen, deleteAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string }; isOpen: boolean; deleteAction?: (id: number) => void; onClose?: () => void }) => {
+    return (
+        <ModalWrapper isOpen={isOpen}>
+            <div className="relative flex flex-col items-center justify-center rounded-2xl bg-white px-3 py-2">
+                <span className="font-bold text-xl">Delete Word</span>
+                <button className="absolute top-2 right-2 p-1 rounded-full cursor-pointer hover:bg-[var(--color-neutral-lighter)]" onClick={() => onClose?.()}>
+                    <Icon name="cross" className="w-5"/>
+                </button>
+                <p className="mt-2">Are you sure you want to delete this word?</p>
+                <p className="font-bold">{`${word.ch} - ${word.pinyin} - ${word.fr}`}</p>
+                <div className="flex gap-3 mt-3">
+                    <button 
+                        className="bg-[var(--color-danger)] px-3 py-1 rounded-lg cursor-pointer text-md text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                        onClick={async () => {
+                            await deleteAction?.(word.id);
+                            onClose?.();
+                        }}
+                    >
+                        Confirm
+                    </button>
+                    <button 
+                        className="bg-[var(--color-neutral-dark)] px-3 py-1 rounded-lg cursor-pointer text-md text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-neutral-darker)]"
+                        onClick={() => onClose?.()}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </ModalWrapper>
+    );
+}
+
+const AddModal = ({ isOpen, addAction, onClose }: { isOpen: boolean; addAction?: (formData: FormData) => void; onClose?: () => void }) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        await addAction?.(formData);
+        onClose?.();
+    };
+
+    return (
+        <ModalWrapper isOpen={isOpen}>
+            <div className="relative flex flex-col items-center justify-center rounded-2xl bg-white px-3 py-2">
+                <span className="font-bold text-xl">Add Word</span>
+                <button className="absolute top-2 right-2 p-1 rounded-full cursor-pointer hover:bg-[var(--color-neutral-lighter)]" onClick={() => onClose?.()}>
+                    <Icon name="cross" className="w-5"/>
+                </button>
+                <form onSubmit={handleSubmit} className="flex flex-col w-full gap-3">
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="ch" className="block text-sm font-medium text-gray-700">Simplified Chinese</label>
+                        <input required type="text" name="ch" className="border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="pinyin" className="block text-sm font-medium text-gray-700">Pinyin</label>
+                        <input required type="text" name="pinyin" className="border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <div className="flex flex-col w-full gap-1">
+                        <label htmlFor="fr" className="block text-sm font-medium text-gray-700">French</label>
+                        <input required type="text" name="fr" className="border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full" />
+                    </div>
+                    <button type="submit" className="bg-[var(--color-action-dark)] px-3 py-1 rounded-lg cursor-pointer text-md text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)] mt-2">
+                        Add
+                    </button>
+                </form>
+            </div>
+        </ModalWrapper>
+    );
+}
+
+/** Primary UI component for user interaction */
+export const Dictionary = ({
+  backgroundColor,
+  words,
+  page,
+  nextPage,
+  prevPage,
+  disableNext,
+  disablePrev,
+  editAction,
+  deleteAction,
+  addAction,
+  onChangeOrder,
+  className = '',
+  ...props
+}: DictionaryProps) => {
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [editWord, setEditWord] = useState<{ id: number; ch: string; pinyin: string; fr: string }>({ id: NaN, ch: '', pinyin: '', fr: '' });
+  const [deleteWord, setDeleteWord] = useState<{ id: number; ch: string; pinyin: string; fr: string }>({ id: NaN, ch: '', pinyin: '', fr: '' });
+
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+
+  const [currentMenuOpened, setCurrentMenuOpened] = useState<number | null>(null); // For mobile dropdown menu : stores the index of the word for which the menu is opened
+
+  function handleEdit(word: { id:number; ch: string; pinyin: string; fr: string }) {
+    setEditWord(word);
+    setIsEditModalOpen(true);
+  }
+
+  function handleDelete(word: { id: number; ch: string; pinyin: string; fr: string }) {
+    setDeleteWord(word);
+    setIsDeleteModalOpen(true);
+  }
+
+  return (
+    <div
+      className={"relative flex-1 flex flex-col w-full bg-[var(--color-neutral-lightest)] px-3 py-2 " + className}
+      style={{ backgroundColor : backgroundColor }}
+      {...props}
+    >
+        <div className="flex justify-between items-center">
+            <button 
+                className="bg-[var(--color-action-dark)] text-nowrap px-1 md:px-5 py-1 rounded-lg cursor-pointer text-sm md:text-xl text-white text-center font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                onClick={() => setIsAddModalOpen(true)}
+            >
+               + Add{isMobile ? '' : ' Word'}
+            </button>
+            <div className="flex items-center">
+                <div className="flex items-center gap-1">
+                    <span className="text-sm md:text-base"> Order by French </span>
+                    <Toggle
+                        onChange ={onChangeOrder}
+                    />
+                </div>
+                <div className="flex items-center gap-2 ml-5">
+                    <button 
+                        className={`flex items-center justify-center md:px-3 md:py-1 rounded-lg text-sm md:text-xl font-[family-name:var(--font-header)] font-bold ${disablePrev ? 'md:bg-[var(--color-neutral-lighter)] text-[var(--color-neutral-dark)]' : 'cursor-pointer hover:bg-[var(--color-neutral-lighter)] md:bg-[var(--color-neutral-light)]'}`}
+                        onClick={prevPage}
+                        disabled={disablePrev}
+                    >
+                        &lt;
+                    </button>
+                    <span className="text-sm md:text-base text-nowrap">Page {page + 1}</span>
+                    <button
+                        className={`flex items-center justify-center md:px-3 md:py-1 rounded-lg text-sm md:text-xl font-[family-name:var(--font-header)] font-bold ${disableNext ? 'md:bg-[var(--color-neutral-lighter)] text-[var(--color-neutral-dark)]' : 'cursor-pointer hover:bg-[var(--color-neutral-lighter)] md:bg-[var(--color-neutral-light)]'}`}
+                        onClick={nextPage}
+                        disabled={disableNext}
+                    >
+                        &gt;
+                    </button>
+                </div>
+            </div>
+        </div>
+        <table className="w-full mt-5 text-left">
+            <thead>
+                <tr>
+                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">Simplified Chinese</th>
+                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">Pinyin</th>
+                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">French</th>
+                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">{isMobile ? '' : 'Actions'}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {words.map((word, index) => (
+                    <tr key={index}>
+                        <td className="border-b capitalize border-gray-300 px-2 md:px-4 md:py-2">{word.ch}</td>
+                        <td className="border-b capitalize border-gray-300 px-2 md:px-4 md:py-2">{word.pinyin}</td>
+                        <td className="border-b capitalize border-gray-300 px-2 md:px-4 md:py-2">{word.fr}</td>
+                        {!isMobile && (
+                            <td className="border-b border-gray-300 px-4 py-2">
+                                <button 
+                                    className="bg-[var(--color-action-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                                    onClick={() => handleEdit(word)}
+                                >
+                                    Edit
+                                </button>
+                                <button 
+                                    className="bg-[var(--color-danger-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)] ml-2"
+                                    onClick={() => handleDelete(word)}
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        )}
+                        {isMobile && (
+                           <td className="relative border-b border-gray-300 px-2">
+                            <button>
+                                <Icon name="dots" className="w-5" onClick={() => setCurrentMenuOpened(prev => prev === index ? null : index)} />
+                            </button>
+                            {currentMenuOpened === index && (
+                                <div className="absolute right-2 top-5 bg-white border-2 border-gray-300 rounded-lg p-1 flex flex-col gap-2 z-10">
+                                    <button 
+                                        className="bg-[var(--color-action-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                                        onClick={() => {
+                                            handleEdit(word);
+                                            setCurrentMenuOpened(null);
+                                        }}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        className="bg-[var(--color-danger-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                                        onClick={() => {
+                                            handleDelete(word);
+                                            setCurrentMenuOpened(null);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            )}
+                        </td>
+                        )}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+
+        <EditModal word={editWord} isOpen={isEditModalOpen} editAction={editAction} onClose={() => setIsEditModalOpen(false)} />
+        <Delete word={deleteWord} isOpen={isDeleteModalOpen} deleteAction={deleteAction} onClose={() => setIsDeleteModalOpen(false)} />
+        <AddModal isOpen={isAddModalOpen} addAction={addAction} onClose={() => setIsAddModalOpen(false)} />
+    </div>
+  );
+};
