@@ -168,8 +168,9 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
 export async function upgradeBox(userId: number, id: number, mode: string, maxBox: number = 6) {
     const dateNow = new Date();
     const boxMode = mode === "fr" ? 'box' : 'box_pinyin';
+    const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     try {
-        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} + 1, date = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} < $4`, [userId, id, dateNow, maxBox]);
+        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} + 1, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} < $4`, [userId, id, dateNow, maxBox]);
         return { success: true };
     } catch (error) {
         console.error("Error upgrading box:", error);
@@ -180,8 +181,9 @@ export async function upgradeBox(userId: number, id: number, mode: string, maxBo
 export async function downgradeBox(userId: number, id: number, mode: string, minBox: number = 0) {
     const dateNow = new Date();
     const boxMode = mode === "fr" ? 'box' : 'box_pinyin';
+    const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     try {
-        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} - 1, date = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
+        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} - 1, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
         return { success: true };
     } catch (error) {
         console.error("Error downgrading box:", error);
