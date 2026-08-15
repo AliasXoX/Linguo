@@ -26,7 +26,6 @@ export default async function Learn() {
   const initWordResult = await getNextWord(userId, 0, mode, []);
 
 
-
   return (
     <main className="flex-1 flex flex-col items-center justify-between px-1 md:px-56 pb-3">
         <div className="flex flex-1 w-full bg-[var(--color-neutral-lightest)]">
@@ -34,7 +33,7 @@ export default async function Learn() {
             initMode={mode}
             userId={userId}
             initBoxes={initBoxes}
-            initWord={initWordResult.success ? initWordResult.word : ""}
+            initWord={initWordResult.success ? { word: initWordResult.word, id: initWordResult.id } : { word: "", id: null }}
           />
         </div>
     </main>

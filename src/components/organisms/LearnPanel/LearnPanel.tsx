@@ -13,7 +13,7 @@ export interface LearnPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   }>;
   selectedBox: number;
   setSelectedBox: (index: number) => void;
-  inputWord: string;
+  inputWord: { word: string; id: number | null };
   formAction?: (formData: FormData) => void;
   state: {
     success: boolean;
@@ -108,7 +108,7 @@ export const LearnPanel = ({
             </div>
           </div>
         )}
-        {!isMobile && (<div className="md:absolute md:top-5 top-5 mt-10 left-5 flex">
+        {!isMobile() && (<div className="md:absolute md:top-5 top-5 left-5 flex">
           {!skip && (
             <div onClick={async () => {
               const skipped = await handleSkip?.();
@@ -133,7 +133,7 @@ export const LearnPanel = ({
             type="text"
             readOnly
             name='translate'
-            value={inputWord}
+            value={inputWord.word}
           />
         </div>
         <div className="flex flex-col md:w-1/2 gap-2 px-1 md:px-0">

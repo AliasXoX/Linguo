@@ -13,7 +13,7 @@ interface LearnPanelWrapperProps {
     rest: number;
     total: number;
   }>;
-  initWord: string;
+  initWord: { word: string; id: number | null };
 }
 
 export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: LearnPanelWrapperProps) {
@@ -39,7 +39,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
     await updateBoxes(newMode);
     getNextWord(userId, 0, newMode, []).then(result => {
       if (result.success) {
-        setInputWord(result.word);
+        setInputWord({ word: result.word, id: result.id });
       }
     });
   }
@@ -72,7 +72,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
       if (result.correct) {
         const nextWord = await getNextWord(userId, selectedBox, mode, []);
         if (nextWord.success) {
-          setInputWord(nextWord.word);
+          setInputWord({ word: nextWord.word, id: nextWord.id });
           setUpdate(true);
         }
       }
@@ -90,7 +90,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
     setSelectedBox(newBox);
     const result = await getNextWord(userId, newBox, mode, []);
     if (result.success) {
-      setInputWord(result.word);
+      setInputWord({ word: result.word, id: result.id });
     }
   }
 
@@ -98,7 +98,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
     if (!inputWord) {
       return;
     }
-    const result = await getWord(userId, inputWord, mode);
+    const result = await getWord(userId, inputWord.id ?? 0, mode);
     if (result.success) {
       if (Array.isArray(result.word)) {
         return result.word;
@@ -114,7 +114,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
   async function handleNext() {
     const result = await getNextWord(userId, selectedBox, mode, []);
     if (result.success) {
-      setInputWord(result.word);
+      setInputWord({ word: result.word, id: result.id });
       setUpdate(true);
     }
     setVisibleState(null);

@@ -12,11 +12,12 @@ type SubmitAnswerState = {
     correct?: undefined;
 } | null;
 
-export async function getWord(userId: number, word: string, type: string) {
+export async function getWord(userId: number, id: number, mode: string) {
+    const unmode = mode === "fr" ? "ch" : "pinyin";
     try {
-        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND ${type} = $2`, [userId, word]);
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND id = $2`, [userId, id]);
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0] };
+            return { success: true, word: result.rows[0][unmode] };
         } else {
             return { success: false, error: "Word not found" };
         }
@@ -144,20 +145,20 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
         let result;
         if (excludeWords.length === 0) {
             result = await db.query(
-                `SELECT ${unmode} FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 ORDER BY RANDOM() LIMIT 1`,
+                `SELECT * FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 ORDER BY RANDOM() LIMIT 1`,
                 [userId, box, dateNow]
             );
         }
         else {
             result = await db.query(
-                `SELECT ${unmode} FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 AND ${unmode} NOT IN (${excludeWords.map((_, i) => `$${i + 4}`).join(", ")}) ORDER BY RANDOM() LIMIT 1`,
+                `SELECT * FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 AND ${unmode} NOT IN (${excludeWords.map((_, i) => `$${i + 4}`).join(", ")}) ORDER BY RANDOM() LIMIT 1`,
                 [userId, box, dateNow, ...excludeWords]
             );
         }
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0][unmode] };
+            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'] };
         } else {
-            return { success: true, word: '' };
+            return { success: true, word: '', id: null }; // No word found, return empty string and null id
         }
     } catch (error) {
         console.error("Error fetching next word:", error);
