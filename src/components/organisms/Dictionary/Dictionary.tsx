@@ -212,10 +212,10 @@ export const Dictionary = ({
         <table className="w-full mt-5 text-left">
             <thead>
                 <tr>
-                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">Simplified Chinese</th>
-                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">Pinyin</th>
-                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">French</th>
-                    <th className="border-b-2 border-gray-300 md:px-4 md:py-2">{isMobile ? '' : 'Actions'}</th>
+                    <th className="border-b-2 border-gray-300 text-sm md:text-md md:px-4 md:py-2">Simplified Chinese</th>
+                    <th className="border-b-2 border-gray-300 text-sm md:text-md md:px-4 md:py-2">Pinyin</th>
+                    <th className="border-b-2 border-gray-300 text-sm md:text-md md:px-4 md:py-2">French</th>
+                    <th className="border-b-2 border-gray-300 text-sm md:text-md md:px-4 md:py-2">{isMobile ? '' : 'Actions'}</th>
                 </tr>
             </thead>
             <tbody>
