@@ -38,7 +38,7 @@ const PhoneNavbar = ({
                         alt="Linguo Logo"
                         className="w-16"
                     />
-                    <span className="text-sm font-[family-name:var(--font-logo)]">Linguo</span>
+                    <span className="text-sm font-[family-name:var(--font-logo)]">邻国</span>
                 </span>
             </div>
             
