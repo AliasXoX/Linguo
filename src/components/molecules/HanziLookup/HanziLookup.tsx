@@ -4,8 +4,7 @@ import { Icon } from "@/components/atoms/Icon/Icon";
 
 export interface HanziLookupProps extends React.HTMLAttributes<HTMLDivElement> {
     /** What background color to use */
-    header: string;
-    children: React.ReactNode;
+    handleSelect: (character: string) => void;
 }
 
 type Point = [number, number];
@@ -13,8 +12,7 @@ type Stroke = Point[];
 type StrokeGroup = Stroke[];
 
 export const HanziLookup = ({
-    header,
-    children,
+    handleSelect,
     className = '',
     ...props
 }: HanziLookupProps) => {
@@ -22,6 +20,7 @@ export const HanziLookup = ({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const strokeRef = useRef<StrokeGroup>([]);
     const strokeTempRef = useRef<Stroke>([]);
+    const [matches, setMatches] = useState<Array<{ character: string, score: number }>>([]);
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -35,6 +34,7 @@ export const HanziLookup = ({
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         strokeRef.current = [];
         strokeTempRef.current = [];
+        setMatches([]);
     };
 
     useEffect(() => {
@@ -94,7 +94,7 @@ export const HanziLookup = ({
             const analyzedChar = new HanziLookupLib.AnalyzedCharacter(strokeRef.current);
             const matcherMMAH = new HanziLookupLib.Matcher("mmah");
             matcherMMAH.match(analyzedChar, 8, function (matches: Array<{ character: string, score: number }>) {
-                console.log("MMAH matches:", matches);
+                setMatches(matches);
             });
         }
 
@@ -106,10 +106,21 @@ export const HanziLookup = ({
     }, []);
 
     return (
-        <div className="flex flex-col">
-            <canvas ref={canvasRef} width="200" height="300" className="border border-gray-300 bg-white cursor-crosshair"></canvas>
-            <div className="flex justify-end mt-1">
-                <Icon name="delete" className="cursor-pointer w-7 border border-gray-300 bg-white rounded-sm" onClick={clearCanvas}/>
+        <div className="flex">
+            <div className="flex flex-col relative">
+                <canvas ref={canvasRef} width="200" height="300" className="border border-gray-300 bg-white cursor-crosshair rounded-xl"></canvas>
+                <div className="flex justify-end mt-1 absolute right-2 bottom-2">
+                    <Icon name="delete" className="cursor-pointer w-7 border border-gray-300 bg-white rounded-sm" onClick={clearCanvas}/>
+                </div>
+            </div>
+            <div className="block border border-gray-300 bg-white w-24 h-48 ml-2 overflow-y-auto rounded-xl">
+                <div className="grid grid-cols-3 overflow-y-auto">
+                {matches.map((match, index) => (
+                    <span key={index} className="flex border border-gray-300 bg-white w-8 h-8 items-center justify-center hover:bg-gray-200 cursor-pointer" onClick={() => handleSelect(match.character)}>
+                        {match.character}
+                    </span>
+                ))}
+                </div>
             </div>
         </div>
     );

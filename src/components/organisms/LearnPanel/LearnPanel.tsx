@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { HanziLookup } from '@/components/molecules/HanziLookup/HanziLookup';
 
 export interface LearnPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   /** What background color to use */
@@ -113,6 +114,14 @@ export const LearnPanel = ({
             value={skip.join(" || ")}
           />)}
         </div>
+        {mode === "fr" && (
+          <HanziLookup handleSelect={(character) => {
+            const answerInput = document.querySelector<HTMLInputElement>("input[name='answer']");
+            if (answerInput) {
+              answerInput.value = answerInput.value + character;
+            }
+          }} />
+        )}
         <button
           type="submit"
           className="bg-[var(--color-action-dark)] hover:bg-[var(--color-action-darker)] text-white font-bold py-2 px-4 rounded-lg cursor-pointer"
