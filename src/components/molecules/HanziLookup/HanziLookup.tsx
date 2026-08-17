@@ -122,13 +122,21 @@ export const HanziLookup = ({
 
         const endDrawing = () => {
             isDrawing = false;
+            console.log("end drawing")
             ctx.beginPath();
+            strokeRef.current.push(strokeTempRef.current);
+            strokeTempRef.current = [];
             if (isReady.current) {
                 lookup();
             }
-            strokeRef.current.push(strokeTempRef.current);
-            strokeTempRef.current = [];
         };
+
+        const leftCanvas = () => {
+            if (!isDrawing) {
+                return;
+            }
+            endDrawing()
+        }
 
         const draw = (event: MouseEvent) => {
             if (!isDrawing) return;
@@ -149,13 +157,14 @@ export const HanziLookup = ({
         canvas.addEventListener("mousedown", startDrawing);
         canvas.addEventListener("mouseup", endDrawing);
         canvas.addEventListener("mousemove", draw);
-        canvas.addEventListener("mouseleave", endDrawing);
+        canvas.addEventListener("mouseleave", leftCanvas);
 
         function lookup() {
             // Decompose character from drawing board
+            console.log("ran")
             const analyzedChar = new HanziLookupLib.AnalyzedCharacter(strokeRef.current);
             const matcherMMAH = new HanziLookupLib.Matcher("mmah");
-            matcherMMAH.match(analyzedChar, 8, function (matches: Array<{ character: string, score: number }>) {
+            matcherMMAH.match(analyzedChar, 20, function (matches: Array<{ character: string, score: number }>) {
                 setMatches(matches);
             });
         }
