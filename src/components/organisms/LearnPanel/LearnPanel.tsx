@@ -129,7 +129,7 @@ export const LearnPanel = ({
         <div className="flex flex-col md:w-1/2 gap-2 px-1 md:px-0">
           <label htmlFor='translate'>Translate the following word:</label>
           <input
-            className="border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full pointer-events-none"
+            className="border-2 border-gray-300 rounded-lg px-4 py-2 font-[family-name:var(--font-input)] text-gray-900 w-full "
             type="text"
             readOnly
             name='translate'

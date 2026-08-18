@@ -67,11 +67,11 @@ export const HanziLookup = ({
             const endDrawing = () => {
                 isDrawing = false;
                 ctx.beginPath();
+                strokeRef.current.push(strokeTempRef.current);
+                strokeTempRef.current = [];
                 if (isReady.current) {
                     lookup();
                 }
-                strokeRef.current.push(strokeTempRef.current);
-                strokeTempRef.current = [];
             };
 
             const draw = (event: TouchEvent) => {
@@ -179,7 +179,7 @@ export const HanziLookup = ({
     return (
         <div className="flex">
             <div className="flex flex-col relative">
-                <canvas ref={canvasRef} width="150" height="300" className="border border-gray-300 bg-white cursor-crosshair rounded-xl touch-none"></canvas>
+                <canvas ref={canvasRef} width="180" height="300" className="border border-gray-300 bg-white cursor-crosshair rounded-xl touch-none"></canvas>
                 <div className="flex justify-end mt-1 absolute right-2 bottom-2">
                     <Icon name="delete" className="cursor-pointer w-7 border border-gray-300 bg-white rounded-sm" onClick={clearCanvas}/>
                 </div>
