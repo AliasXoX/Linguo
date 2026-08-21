@@ -41,7 +41,6 @@ export async function submitAnswer(
     const answer = (formData.get("answer") as string).toLowerCase();
     try {
         const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND ${fetchMode} = $2`, [userId, word]);
-        console.log("submitAnswer result:", result.rows[0]);
         if (result.rows.length > 0 && result.rows[0][unmode].toLowerCase() === answer) {
             // In case of successful answer, we should upgrade the box
             if (update) {
@@ -49,7 +48,7 @@ export async function submitAnswer(
             }
             return { success: true, correct: true };
         } else {
-            // In case of wrong answer, we should downgrade the box
+            // In case of wrong answer, we should downgrade the box to the first box (0)
             if (update) {
                 await downgradeBox(userId, result.rows[0]['id'], mode);
             }
@@ -91,8 +90,6 @@ export async function editWord(userId: number, id: number, newCh: string, newPin
     newCh = newCh.toLowerCase();
     newFr = newFr.toLowerCase();
     newPinyin = newPinyin.toLowerCase();
-    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQqQQQQQQQQQQQQQQQQQQQQQQQQQQQq");
-    console.log("userId:", userId, "id:", id, "newCh:", newCh, "newFr:", newFr, "newPinyin:", newPinyin);
     try {
         await db.query(`UPDATE words SET ch = $3, fr = $4, pinyin = $5 WHERE user_id = $1 AND id = $2`, [userId, id, newCh, newFr, newPinyin]);
         return { success: true };
@@ -184,7 +181,7 @@ export async function downgradeBox(userId: number, id: number, mode: string, min
     const boxMode = mode === "fr" ? 'box' : 'box_pinyin';
     const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     try {
-        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} - 1, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
+        await db.query(`UPDATE words SET ${boxMode} = 0, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
         return { success: true };
     } catch (error) {
         console.error("Error downgrading box:", error);

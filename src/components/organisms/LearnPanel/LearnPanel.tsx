@@ -80,7 +80,7 @@ export const LearnPanel = ({
       <form action={formAction} className="relative flex-1 flex flex-col items-center justify-start md:justify-center gap-5 text-center text-lg md:text-2xl mt-1 md:mt-0">
         {isMobile() && (
           <div className="flex flex-col gap-2">
-            <div className="flex gap-2 z-10">
+            <div className="flex gap-2">
               <button className={`text-white text-sm md:text-base font-bold py-2 px-4 rounded-lg cursor-pointer ${mode === "fr" ? "bg-[var(--color-action-dark)] hover:bg-[var(--color-action-darker)]" : "bg-[var(--color-neutral-dark)] hover:bg-[var(--color-neutral-darker)]"}`} onClick={() => mode !== "fr" && handleChangeMode && handleChangeMode()} disabled={ skip !== null }>
                 FR to 中文
               </button>
