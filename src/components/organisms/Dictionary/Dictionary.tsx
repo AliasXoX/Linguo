@@ -226,18 +226,20 @@ export const Dictionary = ({
                         <td className="border-b capitalize border-gray-300 px-2 md:px-4 md:py-2">{word.fr}</td>
                         {!isMobile && (
                             <td className="border-b border-gray-300 px-4 py-2">
-                                <button 
-                                    className="bg-[var(--color-action-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
-                                    onClick={() => handleEdit(word)}
-                                >
-                                    Edit
-                                </button>
-                                <button 
-                                    className="bg-[var(--color-danger-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)] ml-2"
-                                    onClick={() => handleDelete(word)}
-                                >
-                                    Delete
-                                </button>
+                                <div className="flex gap-2">
+                                    <button 
+                                        className="bg-[var(--color-action-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                                        onClick={() => handleEdit(word)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        className="bg-[var(--color-danger-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)] ml-2"
+                                        onClick={() => handleDelete(word)}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
                             </td>
                         )}
                         {isMobile && (
