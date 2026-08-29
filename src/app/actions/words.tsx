@@ -131,11 +131,11 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
     const dateNow = new Date();
     const daysLimitMap: Record<number, number> = {
         1: 1,
-        2: 2,
-        3: 7,
-        4: 14,
-        5: 30,
-        6: 180,
+        2: 1,
+        3: 2,
+        4: 7,
+        5: 14,
+        6: 30,
     };
     const daysLimit = daysLimitMap[box] ?? 0;
     try {
@@ -195,11 +195,11 @@ export async function  getBoxCount(userId: number, box: number, mode: string) {
     const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     const daysLimitMap: Record<number, number> = {
         1: 1,
-        2: 2,
-        3: 7,
-        4: 14,
-        5: 30,
-        6: 180,
+        2: 1,
+        3: 2,
+        4: 7,
+        5: 14,
+        6: 30,
     };
     const daysLimit = daysLimitMap[box] ?? 0;
     try {
