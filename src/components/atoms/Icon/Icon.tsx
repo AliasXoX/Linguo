@@ -46,6 +46,16 @@ const IconClass: Record<string, ReactSVGElement> = {
         <path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/>
       </svg>
     ) as ReactSVGElement,
+    star: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#000000" stroke="#444444">
+        <path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/>
+      </svg>
+    ) as ReactSVGElement,
+    star_filled: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#444444" stroke="#444444">
+        <path d="m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z"/>
+      </svg>
+    ) as ReactSVGElement,
 }
 
 /** Primary UI component for user interaction */

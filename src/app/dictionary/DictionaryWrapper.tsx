@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Dictionary } from '@/components/organisms/Dictionary/Dictionary';
-import { getWordsByOrder, addWord, deleteWord, editWord } from '../actions/words';
+import { getWordsByOrder, addWord, deleteWord, editWord, addWordToList, removeWordFromList } from '../actions/words';
 
 interface DictionaryWrapperProps {
     userId: number;
@@ -13,6 +13,7 @@ interface DictionaryWrapperProps {
         ch: string;
         pinyin: string;
         fr: string;
+        list: boolean;
     }>;
     wordsCount: number;
 }
@@ -36,12 +37,26 @@ export function DictionaryWrapper({
         setPage(0);
         getWordsByOrder(userId, newOrder, 0, 100).then(result => {
             if (result.success) {
-                setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+                setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             }
         });
     }
 
-
+    const handleList = async (id: number, addToList: boolean) => {
+        if (addToList) {
+            const result = await addWordToList(userId, id);
+            if (result.success) {
+                // Update the word's list status in the local state
+                setWords(prevWords => prevWords.map(word => word.id === id ? { ...word, list: true } : word));
+            }
+        } else {
+            const result = await removeWordFromList(userId, id);
+            if (result.success) {
+                // Update the word's list status in the local state
+                setWords(prevWords => prevWords.map(word => word.id === id ? { ...word, list: false } : word));
+            }
+        }
+    }
 
     async function submitAddAction (
         prevState: { success: boolean; error?: string } | null,
@@ -52,7 +67,7 @@ export function DictionaryWrapper({
             // After adding the word, we should refresh the page to show the new word in the dictionary
             const refreshResult = await getWordsByOrder(userId, order, page * 100, 100);
             if (refreshResult.success) {
-                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             }
         }
         return result;
@@ -78,7 +93,7 @@ export function DictionaryWrapper({
             // After editing the word, we should refresh the page to show the updated word in the dictionary
             const refreshResult = await getWordsByOrder(userId, order, page * 100, 100);
             if (refreshResult.success) {
-                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             }
         }
         return result;
@@ -91,7 +106,7 @@ export function DictionaryWrapper({
             // After deleting the word, we should refresh the page to remove the deleted word from the dictionary
             const refreshResult = await getWordsByOrder(userId, order, page * 100, 100);
             if (refreshResult.success) {
-                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+                setWords(refreshResult.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             }
         }
         return result;
@@ -101,7 +116,7 @@ export function DictionaryWrapper({
         const nextPage = page + 1;
         const result = await getWordsByOrder(userId, order, nextPage * 100, 100);
         if (result.success) {
-            setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+            setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             setPage(nextPage);
         }
     }
@@ -111,7 +126,7 @@ export function DictionaryWrapper({
         const nextPage = Math.max(0, page - 1);
         const result = await getWordsByOrder(userId, order, nextPage * 100, 100);
         if (result.success) {
-            setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string }>);
+            setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
             setPage(nextPage);
         }
     }
@@ -130,6 +145,7 @@ export function DictionaryWrapper({
             deleteAction={handleDeleteAction}
             addAction={addFormAction}
             onChangeOrder={handleChangeOrder}
+            handleList={handleList}
         />
     </main>
     );

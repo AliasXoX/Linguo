@@ -116,7 +116,7 @@ export async function getWordsByOrder(userId: number, order: string, skip: numbe
         return { success: false, error: "Invalid order parameter" };
     }
     try {
-        const result = await db.query(`SELECT id, ch, pinyin, fr FROM words WHERE user_id = $1 ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
+        const result = await db.query(`SELECT id, ch, pinyin, fr, list FROM words WHERE user_id = $1 ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
         return { success: true, words: result.rows };
     } catch (error) {
         console.error("Error fetching words by order:", error);
@@ -239,6 +239,7 @@ export async function addWordToList(userId: number, wordId: number) {
 export async function removeWordFromList(userId: number, wordId: number) {
     try {
         await db.query(`UPDATE words SET list = FALSE WHERE user_id = $1 AND id = $2`, [userId, wordId]);
+        console.log(`Word with ID ${wordId} removed from list for user ${userId}`);
         return { success: true };
     } catch (error) {
         console.error("Error removing word from list:", error);

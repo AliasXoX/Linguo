@@ -11,6 +11,7 @@ export default async function Learn() {
 
   const listWordsResult = await getListWords(userId);
   const listWords = listWordsResult.words || [];
+  const success = listWordsResult.success && listWords.length > 0;
   const total = listWords.length ? listWords.length : 0
 
   console.log("listWordsResult:", listWordsResult);
@@ -29,7 +30,7 @@ export default async function Learn() {
             initMode={mode}
             userId={userId}
             initBoxes={initBoxes}
-            initWord={listWordsResult.success ? { word: mode === "pinyin" ? listCh[0].word : listFr[0].word, id: listWordsResult.success ? (mode === "pinyin" ? listCh[0].id : listFr[0].id) : 0 } : { word: "", id: 0 }}
+            initWord={success ? { word: mode === "pinyin" ? listCh[0].word : listFr[0].word, id: listWordsResult.success ? (mode === "pinyin" ? listCh[0].id : listFr[0].id) : 0 } : { word: "", id: 0 }}
             listCh={listCh}
             listFr={listFr}
             total={total}

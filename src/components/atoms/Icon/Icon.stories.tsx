@@ -54,3 +54,27 @@ export const Menu: Story = {
     name: "menu"
   },
 };
+
+export const Dots: Story = {
+  args: {
+    name: "dots"
+  },
+};
+
+export const Undo: Story = {
+  args: {
+    name: "undo"
+  },
+};
+
+export const Star: Story = {
+  args: {
+    name: "star"
+  },
+};
+
+export const StarFilled: Story = {
+  args: {
+    name: "star_filled"
+  },
+};

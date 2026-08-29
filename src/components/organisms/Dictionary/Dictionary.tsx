@@ -13,6 +13,7 @@ export interface DictionaryProps extends React.HTMLAttributes<HTMLDivElement> {
         ch: string;
         pinyin: string;
         fr: string;
+        list: boolean;
     }>;
     page: number;
     nextPage?: () => void;
@@ -23,9 +24,10 @@ export interface DictionaryProps extends React.HTMLAttributes<HTMLDivElement> {
     deleteAction?: (id: number) => void;
     addAction?: (formData: FormData) => void;
     onChangeOrder?: () => void;
+    handleList: (id: number, list: boolean) => void;
 }
 
-const EditModal = ({ word, isOpen, editAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string }; isOpen: boolean; editAction?: (formData: FormData) => void; onClose?: () => void }) => {
+const EditModal = ({ word, isOpen, editAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string; list: boolean }; isOpen: boolean; editAction?: (formData: FormData) => void; onClose?: () => void }) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -63,7 +65,7 @@ const EditModal = ({ word, isOpen, editAction, onClose }: { word: { id: number; 
     );
 }
 
-const Delete = ({ word, isOpen, deleteAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string }; isOpen: boolean; deleteAction?: (id: number) => void; onClose?: () => void }) => {
+const Delete = ({ word, isOpen, deleteAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string; list: boolean }; isOpen: boolean; deleteAction?: (id: number) => void; onClose?: () => void }) => {
     return (
         <ModalWrapper isOpen={isOpen}>
             <div className="relative flex flex-col items-center justify-center rounded-2xl bg-white px-3 py-2">
@@ -145,6 +147,7 @@ export const Dictionary = ({
   deleteAction,
   addAction,
   onChangeOrder,
+  handleList,
   className = '',
   ...props
 }: DictionaryProps) => {
@@ -153,19 +156,19 @@ export const Dictionary = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const [editWord, setEditWord] = useState<{ id: number; ch: string; pinyin: string; fr: string }>({ id: NaN, ch: '', pinyin: '', fr: '' });
-  const [deleteWord, setDeleteWord] = useState<{ id: number; ch: string; pinyin: string; fr: string }>({ id: NaN, ch: '', pinyin: '', fr: '' });
+  const [editWord, setEditWord] = useState<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>({ id: NaN, ch: '', pinyin: '', fr: '', list: false });
+  const [deleteWord, setDeleteWord] = useState<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>({ id: NaN, ch: '', pinyin: '', fr: '', list: false });
 
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   const [currentMenuOpened, setCurrentMenuOpened] = useState<number | null>(null); // For mobile dropdown menu : stores the index of the word for which the menu is opened
 
-  function handleEdit(word: { id:number; ch: string; pinyin: string; fr: string }) {
+  function handleEdit(word: { id:number; ch: string; pinyin: string; fr: string; list: boolean }) {
     setEditWord(word);
     setIsEditModalOpen(true);
   }
 
-  function handleDelete(word: { id: number; ch: string; pinyin: string; fr: string }) {
+  function handleDelete(word: { id: number; ch: string; pinyin: string; fr: string; list: boolean }) {
     setDeleteWord(word);
     setIsDeleteModalOpen(true);
   }
@@ -227,6 +230,9 @@ export const Dictionary = ({
                         {!isMobile && (
                             <td className="border-b border-gray-300 px-4 py-2">
                                 <div className="flex gap-2">
+                                    <div className="flex items-center justify-center cursor-pointer" onClick={() => handleList(word.id, !word.list)}>
+                                        {word.list ? <Icon name="star_filled" className="w-5" aria-label="Remove from list" /> : <Icon name="star" className="w-5" aria-label="Add to list" />}
+                                    </div>
                                     <button 
                                         className="bg-[var(--color-action-light)] px-3 py-1 rounded-lg cursor-pointer text-sm text-white font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
                                         onClick={() => handleEdit(word)}
