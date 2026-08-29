@@ -16,3 +16,8 @@ CREATE TABLE words (
     box_pinyin integer, /*From simplified chinese to pinyin*/
     date_pinyin date
 );
+
+CREATE TABLE list (
+    word_id integer NOT NULL,
+    user_id integer NOT NULL,
+)

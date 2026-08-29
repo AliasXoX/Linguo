@@ -225,3 +225,33 @@ export async function getTotalWordsCount(userId: number) {
         return { success: false, error: "Failed to fetch total words count" };
     }
 }
+
+export async function addWordToList(userId: number, wordId: number) {
+    try {
+        await db.query(`UPDATE words SET list = TRUE WHERE user_id = $1 AND id = $2`, [userId, wordId]);
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding word to list:", error);
+        return { success: false, error: "Failed to add word to list" };
+    }
+}
+
+export async function removeWordFromList(userId: number, wordId: number) {
+    try {
+        await db.query(`UPDATE words SET list = FALSE WHERE user_id = $1 AND id = $2`, [userId, wordId]);
+        return { success: true };
+    } catch (error) {
+        console.error("Error removing word from list:", error);
+        return { success: false, error: "Failed to remove word from list" };
+    }
+}
+
+export async function getListWords(userId: number) {
+    try {
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND list = TRUE ORDER BY RANDOM()`, [userId]);
+        return { success: true, words: result.rows };
+    } catch (error) {
+        console.error("Error fetching list words:", error);
+        return { success: false, error: "Failed to fetch list words" };
+    }
+}
