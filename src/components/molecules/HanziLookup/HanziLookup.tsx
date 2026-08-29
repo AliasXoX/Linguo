@@ -22,7 +22,12 @@ export const HanziLookup = ({
     const strokeTempRef = useRef<Stroke>([]);
     const [matches, setMatches] = useState<Array<{ character: string, score: number }>>([]);
 
-    const [isOpen, setIsOpen] = useState(false);
+    const isMobile = () => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth <= 768; // Adjust the breakpoint as needed
+        }
+        return false;
+    }
 
     const clearCanvas = () => {
         const canvas = canvasRef.current;
@@ -45,6 +50,63 @@ export const HanziLookup = ({
         HanziLookupLib.init('mmah', transit);
         HanziLookupLib.init('orig', transit);
 
+        if (isMobile()) {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            let isDrawing = false;
+
+            const startDrawing = (event: TouchEvent) => {
+                isDrawing = true;
+                draw(event);
+            };
+
+            const endDrawing = () => {
+                isDrawing = false;
+                ctx.beginPath();
+                strokeRef.current.push(strokeTempRef.current);
+                strokeTempRef.current = [];
+                if (isReady.current) {
+                    lookup();
+                }
+            };
+
+            const draw = (event: TouchEvent) => {
+                if (!isDrawing) return;
+
+                const touch = event.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
+
+                ctx.lineWidth = 5;
+                ctx.lineCap = "round";
+                ctx.strokeStyle = "black";
+
+                ctx.lineTo(offsetX, offsetY);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(offsetX, offsetY);
+
+                const point = [offsetX, offsetY] as Point;
+                strokeTempRef.current.push(point);
+            };
+
+            canvas.addEventListener("touchstart", startDrawing);
+            canvas.addEventListener("touchend", endDrawing);
+            canvas.addEventListener("touchmove", draw);
+            canvas.addEventListener("touchcancel", endDrawing);
+
+            return () => {
+                canvas.removeEventListener("touchstart", startDrawing);
+                canvas.removeEventListener("touchend", endDrawing);
+                canvas.removeEventListener("touchmove", draw);
+                canvas.removeEventListener("touchcancel", endDrawing);
+            };
+        }
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -60,13 +122,21 @@ export const HanziLookup = ({
 
         const endDrawing = () => {
             isDrawing = false;
+            console.log("end drawing")
             ctx.beginPath();
+            strokeRef.current.push(strokeTempRef.current);
+            strokeTempRef.current = [];
             if (isReady.current) {
                 lookup();
             }
-            strokeRef.current.push(strokeTempRef.current);
-            strokeTempRef.current = [];
         };
+
+        const leftCanvas = () => {
+            if (!isDrawing) {
+                return;
+            }
+            endDrawing()
+        }
 
         const draw = (event: MouseEvent) => {
             if (!isDrawing) return;
@@ -87,13 +157,14 @@ export const HanziLookup = ({
         canvas.addEventListener("mousedown", startDrawing);
         canvas.addEventListener("mouseup", endDrawing);
         canvas.addEventListener("mousemove", draw);
-        canvas.addEventListener("mouseleave", endDrawing);
+        canvas.addEventListener("mouseleave", leftCanvas);
 
         function lookup() {
             // Decompose character from drawing board
+            console.log("ran")
             const analyzedChar = new HanziLookupLib.AnalyzedCharacter(strokeRef.current);
             const matcherMMAH = new HanziLookupLib.Matcher("mmah");
-            matcherMMAH.match(analyzedChar, 8, function (matches: Array<{ character: string, score: number }>) {
+            matcherMMAH.match(analyzedChar, 20, function (matches: Array<{ character: string, score: number }>) {
                 setMatches(matches);
             });
         }
@@ -108,7 +179,7 @@ export const HanziLookup = ({
     return (
         <div className="flex">
             <div className="flex flex-col relative">
-                <canvas ref={canvasRef} width="200" height="300" className="border border-gray-300 bg-white cursor-crosshair rounded-xl"></canvas>
+                <canvas ref={canvasRef} width="180" height="300" className="border border-gray-300 bg-white cursor-crosshair rounded-xl touch-none"></canvas>
                 <div className="flex justify-end mt-1 absolute right-2 bottom-2">
                     <Icon name="delete" className="cursor-pointer w-7 border border-gray-300 bg-white rounded-sm" onClick={clearCanvas}/>
                 </div>

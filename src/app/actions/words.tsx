@@ -12,11 +12,12 @@ type SubmitAnswerState = {
     correct?: undefined;
 } | null;
 
-export async function getWord(userId: number, word: string, type: string) {
+export async function getWord(userId: number, id: number, mode: string) {
+    const unmode = mode === "fr" ? "ch" : "pinyin";
     try {
-        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND ${type} = $2`, [userId, word]);
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND id = $2`, [userId, id]);
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0] };
+            return { success: true, word: result.rows[0][unmode] };
         } else {
             return { success: false, error: "Word not found" };
         }
@@ -40,7 +41,6 @@ export async function submitAnswer(
     const answer = (formData.get("answer") as string).toLowerCase();
     try {
         const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND ${fetchMode} = $2`, [userId, word]);
-        console.log("submitAnswer result:", result.rows[0]);
         if (result.rows.length > 0 && result.rows[0][unmode].toLowerCase() === answer) {
             // In case of successful answer, we should upgrade the box
             if (update) {
@@ -48,7 +48,7 @@ export async function submitAnswer(
             }
             return { success: true, correct: true };
         } else {
-            // In case of wrong answer, we should downgrade the box
+            // In case of wrong answer, we should downgrade the box to the first box (0)
             if (update) {
                 await downgradeBox(userId, result.rows[0]['id'], mode);
             }
@@ -90,8 +90,6 @@ export async function editWord(userId: number, id: number, newCh: string, newPin
     newCh = newCh.toLowerCase();
     newFr = newFr.toLowerCase();
     newPinyin = newPinyin.toLowerCase();
-    console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQqQQQQQQQQQQQQQQQQQQQQQQQQQQQq");
-    console.log("userId:", userId, "id:", id, "newCh:", newCh, "newFr:", newFr, "newPinyin:", newPinyin);
     try {
         await db.query(`UPDATE words SET ch = $3, fr = $4, pinyin = $5 WHERE user_id = $1 AND id = $2`, [userId, id, newCh, newFr, newPinyin]);
         return { success: true };
@@ -133,31 +131,31 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
     const dateNow = new Date();
     const daysLimitMap: Record<number, number> = {
         1: 1,
-        2: 2,
-        3: 7,
-        4: 14,
-        5: 30,
-        6: 180,
+        2: 1,
+        3: 2,
+        4: 7,
+        5: 14,
+        6: 30,
     };
     const daysLimit = daysLimitMap[box] ?? 0;
     try {
         let result;
         if (excludeWords.length === 0) {
             result = await db.query(
-                `SELECT ${unmode} FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 ORDER BY RANDOM() LIMIT 1`,
+                `SELECT * FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 ORDER BY RANDOM() LIMIT 1`,
                 [userId, box, dateNow]
             );
         }
         else {
             result = await db.query(
-                `SELECT ${unmode} FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 AND ${unmode} NOT IN (${excludeWords.map((_, i) => `$${i + 4}`).join(", ")}) ORDER BY RANDOM() LIMIT 1`,
+                `SELECT * FROM words WHERE user_id = $1 AND ($3 - ${dateMode} >= ${daysLimit}) AND ${boxMode} = $2 AND ${unmode} NOT IN (${excludeWords.map((_, i) => `$${i + 4}`).join(", ")}) ORDER BY RANDOM() LIMIT 1`,
                 [userId, box, dateNow, ...excludeWords]
             );
         }
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0][unmode] };
+            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'] };
         } else {
-            return { success: true, word: '' };
+            return { success: true, word: '', id: null }; // No word found, return empty string and null id
         }
     } catch (error) {
         console.error("Error fetching next word:", error);
@@ -183,7 +181,7 @@ export async function downgradeBox(userId: number, id: number, mode: string, min
     const boxMode = mode === "fr" ? 'box' : 'box_pinyin';
     const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     try {
-        await db.query(`UPDATE words SET ${boxMode} = ${boxMode} - 1, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
+        await db.query(`UPDATE words SET ${boxMode} = 0, ${dateMode} = $3 WHERE user_id = $1 AND id = $2 AND ${boxMode} > $4`, [userId, id, dateNow, minBox]);
         return { success: true };
     } catch (error) {
         console.error("Error downgrading box:", error);
@@ -197,11 +195,11 @@ export async function  getBoxCount(userId: number, box: number, mode: string) {
     const dateMode = boxMode === 'box' ? 'date' : 'date_pinyin';
     const daysLimitMap: Record<number, number> = {
         1: 1,
-        2: 2,
-        3: 7,
-        4: 14,
-        5: 30,
-        6: 180,
+        2: 1,
+        3: 2,
+        4: 7,
+        5: 14,
+        6: 30,
     };
     const daysLimit = daysLimitMap[box] ?? 0;
     try {

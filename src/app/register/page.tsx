@@ -9,8 +9,8 @@ export default function Register() {
   const [, registerAction] = useFormState(register, null);
 
   return (
-    <main className="flex-1 flex flex-col items-center align-center justify-center px-56">
-      <div className="flex flex-col items-center align-center justify-center bg-[var(--color-neutral-lightest)] w-1/2 rounded-lg p-8">
+    <main className="flex-1 flex flex-col items-center align-center justify-center px-1 md:px-56">
+      <div className="flex flex-col items-center align-center justify-center bg-[var(--color-neutral-lightest)] md:w-1/2 w-full rounded-lg p-8">
         <div className="flex flex-col items-center align-center justify-center mb-18">
           <h1 className="text-7xl font-bold mb-4 font-[family-name:var(--font-heading)]">Sign Up</h1>
           <p className="text-gray-600 text-xl">Please register for an account</p>

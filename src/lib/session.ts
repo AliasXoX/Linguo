@@ -20,8 +20,8 @@ export async function decrypt(session: string | undefined = '') {
       algorithms: ['HS256'],
     })
     return payload
-  } catch {
-    console.log('Failed to verify session')
+  } catch (error) {
+    console.log('Failed to verify session', error)
   }
 }
 
@@ -32,7 +32,7 @@ export async function createSession(userId: number, username: string) {
  
   cookieStore.set('linguoSessionCookie', session, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     expires: expiresAt,
     sameSite: 'lax',
     path: '/',
@@ -52,7 +52,7 @@ export async function updateSession() {
   const cookieStore = await cookies()
   cookieStore.set('linguoSessionCookie', session, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     expires: expires,
     sameSite: 'lax',
     path: '/',
