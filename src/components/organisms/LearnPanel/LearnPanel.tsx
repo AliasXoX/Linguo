@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { HanziLookup } from '@/components/molecules/HanziLookup/HanziLookup';
+import { Icon } from '@/components/atoms/Icon/Icon';
 
 export interface LearnPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   /** What background color to use */
@@ -13,7 +14,7 @@ export interface LearnPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   }>;
   selectedBox: number;
   setSelectedBox: (index: number) => void;
-  inputWord: { word: string; id: number | null };
+  inputWord: { word: string; id: number; list: boolean | null };
   formAction?: (formData: FormData) => void;
   state: {
     success: boolean;
@@ -26,6 +27,7 @@ export interface LearnPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   } | null;
   handleSkip?: () => Promise<string[] | void>;
   handleNext?: () => void;
+  handleList?: (id: number, addList: boolean) => void;
 }
 
 /** Primary UI component for user interaction */
@@ -41,6 +43,7 @@ export const LearnPanel = ({
   state,
   handleSkip,
   handleNext,
+  handleList,
   className = '',
   ...props
 }: LearnPanelProps) => {
@@ -105,6 +108,9 @@ export const LearnPanel = ({
                   <span className="text-xs md:text-lg text-gray-500">Next</span>
                 </div>
               )}
+              {handleList && <span className="ml-2 flex items-center justify-center cursor-pointer" onClick={() => handleList && handleList(inputWord.id, !inputWord.list)}>
+                {inputWord.list ? <Icon name="star_filled" className="w-5" aria-label="Remove from list" /> : <Icon name="star" className="w-5" aria-label="Add to list" />}
+              </span>}
             </div>
           </div>
         )}
@@ -125,6 +131,9 @@ export const LearnPanel = ({
               <span className="text-xs md:text-lg text-gray-500">Next</span>
             </div>
           )}
+          {handleList && <span className="ml-2 flex items-center justify-center cursor-pointer" onClick={() => handleList && handleList(inputWord.id, !inputWord.list)}>
+            {inputWord.list ? <Icon name="star_filled" className="w-5" aria-label="Remove from list" /> : <Icon name="star" className="w-5" aria-label="Add to list" />}
+          </span>}
         </div>)}
         <div className="flex flex-col md:w-1/2 gap-2 px-1 md:px-0">
           <label htmlFor='translate'>Translate the following word:</label>

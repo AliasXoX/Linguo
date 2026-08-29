@@ -153,9 +153,9 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
             );
         }
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'] };
+            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'], list: result.rows[0]['list'] };
         } else {
-            return { success: true, word: '', id: null }; // No word found, return empty string and null id
+            return { success: true, word: '', id: null, list: null }; // No word found, return empty string and null id
         }
     } catch (error) {
         console.error("Error fetching next word:", error);
