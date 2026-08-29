@@ -131,7 +131,7 @@ export function ListPanelWrapper({ initMode, userId, initBoxes, initWord, listCh
       handleChangeMode={handleChangeMode}
       selectedBox={selectedBox}
       setSelectedBox={(index: number) => {}}
-      inputWord={inputWord}
+      inputWord={{word: inputWord.word, id: inputWord.id, list: false}}
       formAction={verifyAnswer}
       state={visibleState}
       handleSkip={handleSkip}

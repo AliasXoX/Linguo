@@ -256,3 +256,17 @@ export async function getListWords(userId: number) {
         return { success: false, error: "Failed to fetch list words" };
     }
 }
+
+export async function getListWordsByOrder(userId: number, order: string, skip: number = 0, limit: number = 1000) {
+    const validOrders = ["pinyin", "fr"];
+    if (!validOrders.includes(order)) {
+        return { success: false, error: "Invalid order parameter" };
+    }
+    try {
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND list = TRUE ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
+        return { success: true, words: result.rows };
+    } catch (error) {
+        console.error("Error fetching list words by order:", error);
+        return { success: false, error: "Failed to fetch list words by order" };
+    }
+}

@@ -25,6 +25,8 @@ export interface DictionaryProps extends React.HTMLAttributes<HTMLDivElement> {
     addAction?: (formData: FormData) => void;
     onChangeOrder?: () => void;
     handleList: (id: number, list: boolean) => void;
+    handleListOnly: () => void;
+    listOnly: boolean;
 }
 
 const EditModal = ({ word, isOpen, editAction, onClose }: { word: { id: number; ch: string; pinyin: string; fr: string; list: boolean }; isOpen: boolean; editAction?: (formData: FormData) => void; onClose?: () => void }) => {
@@ -148,6 +150,8 @@ export const Dictionary = ({
   addAction,
   onChangeOrder,
   handleList,
+  handleListOnly,
+  listOnly,
   className = '',
   ...props
 }: DictionaryProps) => {
@@ -180,12 +184,17 @@ export const Dictionary = ({
       {...props}
     >
         <div className="flex justify-between items-center">
-            <button 
-                className="bg-[var(--color-action-dark)] text-nowrap px-1 md:px-5 py-1 rounded-lg cursor-pointer text-sm md:text-xl text-white text-center font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
-                onClick={() => setIsAddModalOpen(true)}
-            >
-               + Add{isMobile ? '' : ' Word'}
-            </button>
+            <div className="flex items-center">
+                <button 
+                    className="bg-[var(--color-action-dark)] text-nowrap px-1 md:px-5 py-1 rounded-lg cursor-pointer text-sm md:text-xl text-white text-center font-[family-name:var(--font-header)] font-bold hover:bg-[var(--color-action-darker)]"
+                    onClick={() => setIsAddModalOpen(true)}
+                >
+                + Add{isMobile ? '' : ' Word'}
+                </button>
+                <span className="flex items-center justify-center cursor-pointer" onClick={() => handleListOnly()}>
+                    {listOnly ? <Icon name="star_filled" className="w-5 ml-2" aria-label="Show all words" /> : <Icon name="star" className="w-5 ml-2" aria-label="Show only list words" />}
+                </span>
+            </div>
             <div className="flex items-center">
                 <div className="flex items-center gap-1">
                     <span className="text-sm md:text-base"> Order by French </span>

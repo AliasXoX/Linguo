@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Dictionary } from '@/components/organisms/Dictionary/Dictionary';
-import { getWordsByOrder, addWord, deleteWord, editWord, addWordToList, removeWordFromList } from '../actions/words';
+import { getWordsByOrder, addWord, deleteWord, editWord, addWordToList, removeWordFromList, getListWordsByOrder } from '../actions/words';
 
 interface DictionaryWrapperProps {
     userId: number;
@@ -30,16 +30,27 @@ export function DictionaryWrapper({
 
     const [order, setOrder] = useState(initOrder);
 
+    const [listOnly, setListOnly] = useState(false);
+
     const handleChangeOrder = () => {
         const newOrder = order === 'pinyin' ? 'fr' : 'pinyin';
         setOrder(newOrder);
         // When changing the order, we should reset to the first page
         setPage(0);
-        getWordsByOrder(userId, newOrder, 0, 100).then(result => {
-            if (result.success) {
-                setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
-            }
-        });
+        if (listOnly) {
+            getListWordsByOrder(userId, newOrder, 0, 100).then(result => {
+                if (result.success) {
+                    setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
+                }
+            });
+        }
+        else {
+            getWordsByOrder(userId, newOrder, 0, 100).then(result => {
+                if (result.success) {
+                    setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
+                }
+            });
+        }
     }
 
     const handleList = async (id: number, addToList: boolean) => {
@@ -55,6 +66,26 @@ export function DictionaryWrapper({
                 // Update the word's list status in the local state
                 setWords(prevWords => prevWords.map(word => word.id === id ? { ...word, list: false } : word));
             }
+        }
+    }
+
+    const handleListOnly = () => {
+        const newListOnly = !listOnly;
+        setListOnly(newListOnly);
+        // When toggling list only, we should reset to the first page
+        setPage(0);
+        if (newListOnly) {
+            getListWordsByOrder(userId, order, 0, 100).then(result => {
+                if (result.success) {
+                    setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
+                }
+            });
+        } else {
+            getWordsByOrder(userId, order, 0, 100).then(result => {
+                if (result.success) {
+                    setWords(result.words as Array<{ id: number; ch: string; pinyin: string; fr: string; list: boolean }>);
+                }
+            });
         }
     }
 
@@ -146,6 +177,8 @@ export function DictionaryWrapper({
             addAction={addFormAction}
             onChangeOrder={handleChangeOrder}
             handleList={handleList}
+            handleListOnly={handleListOnly}
+            listOnly={listOnly}
         />
     </main>
     );
