@@ -29,9 +29,9 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     words: [
-        { id: 1, ch: '你好', pinyin: 'nǐ hǎo', fr: 'Bonjour' },
-        { id: 2, ch: '苹果', pinyin: 'píng guǒ', fr: 'Pomme' },
-        { id: 3, ch: '书', pinyin: 'shū', fr: 'Livre' },
+        { id: 1, ch: '你好', pinyin: 'nǐ hǎo', fr: 'Bonjour', list: true },
+        { id: 2, ch: '苹果', pinyin: 'píng guǒ', fr: 'Pomme', list: true },
+        { id: 3, ch: '书', pinyin: 'shū', fr: 'Livre', list: true },
     ],
     page: 1,
     nextPage: fn(),
@@ -42,5 +42,8 @@ export const Primary: Story = {
     deleteAction: fn(),
     addAction: fn(),
     onChangeOrder: fn(),
+    handleList: fn(),
+    handleListOnly: fn(),
+    listOnly: false,
   },
 };

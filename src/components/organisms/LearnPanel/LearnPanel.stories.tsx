@@ -45,7 +45,7 @@ export const Primary: Story = {
         { rest: 0, total: 10 },
         { rest: 4, total: 10 },
     ],
-    inputWord: "Hello",
+    inputWord: {word: "Hello", id: 1, list: null},
     formAction: fn(),
     state: null,
   },
@@ -65,7 +65,7 @@ export const WithError: Story = {
         { rest: 0, total: 10 },
         { rest: 4, total: 10 },
     ],
-    inputWord: "Hello",
+    inputWord: {word: "Hello", id: 1, list: null},
     formAction: fn(),
     state: {
       success: false,
@@ -88,7 +88,7 @@ export const WithCorrectAnswer: Story = {
         { rest: 0, total: 10 },
         { rest: 4, total: 10 },
     ],
-    inputWord: "Hello",
+    inputWord: {word: "Hello", id: 1, list: null},
     formAction: fn(),
     state: {
       success: true,
@@ -111,7 +111,7 @@ export const WithIncorrectAnswer: Story = {
         { rest: 0, total: 10 },
         { rest: 4, total: 10 },
     ],
-    inputWord: "Hello",
+    inputWord: {word: "Hello", id: 1, list: null},
     formAction: fn(),
     state: {
       success: true,

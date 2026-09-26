@@ -19,12 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
-    header: "Dropdown Title",
-    children: (
-      <div className="p-4">
-        <p>This is the content of the dropdown.</p>
-        <p>You can put any React node here.</p>
-      </div>
-    )
+    handleSelect: (character: string) => {
+      console.log(`Selected character: ${character}`);
+    }
   },
 };
