@@ -116,7 +116,7 @@ export async function getWordsByOrder(userId: number, order: string, skip: numbe
         return { success: false, error: "Invalid order parameter" };
     }
     try {
-        const result = await db.query(`SELECT id, ch, pinyin, fr FROM words WHERE user_id = $1 ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
+        const result = await db.query(`SELECT id, ch, pinyin, fr, list FROM words WHERE user_id = $1 ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
         return { success: true, words: result.rows };
     } catch (error) {
         console.error("Error fetching words by order:", error);
@@ -153,9 +153,9 @@ export async function getNextWord(userId: number, box: number, mode: string, exc
             );
         }
         if (result.rows.length > 0) {
-            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'] };
+            return { success: true, word: result.rows[0][unmode], id: result.rows[0]['id'], list: result.rows[0]['list'] };
         } else {
-            return { success: true, word: '', id: null }; // No word found, return empty string and null id
+            return { success: true, word: '', id: null, list: null }; // No word found, return empty string and null id
         }
     } catch (error) {
         console.error("Error fetching next word:", error);
@@ -223,5 +223,50 @@ export async function getTotalWordsCount(userId: number) {
     } catch (error) {
         console.error("Error fetching total words count:", error);
         return { success: false, error: "Failed to fetch total words count" };
+    }
+}
+
+export async function addWordToList(userId: number, wordId: number) {
+    try {
+        await db.query(`UPDATE words SET list = TRUE WHERE user_id = $1 AND id = $2`, [userId, wordId]);
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding word to list:", error);
+        return { success: false, error: "Failed to add word to list" };
+    }
+}
+
+export async function removeWordFromList(userId: number, wordId: number) {
+    try {
+        await db.query(`UPDATE words SET list = FALSE WHERE user_id = $1 AND id = $2`, [userId, wordId]);
+        console.log(`Word with ID ${wordId} removed from list for user ${userId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Error removing word from list:", error);
+        return { success: false, error: "Failed to remove word from list" };
+    }
+}
+
+export async function getListWords(userId: number) {
+    try {
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND list = TRUE ORDER BY RANDOM()`, [userId]);
+        return { success: true, words: result.rows };
+    } catch (error) {
+        console.error("Error fetching list words:", error);
+        return { success: false, error: "Failed to fetch list words" };
+    }
+}
+
+export async function getListWordsByOrder(userId: number, order: string, skip: number = 0, limit: number = 1000) {
+    const validOrders = ["pinyin", "fr"];
+    if (!validOrders.includes(order)) {
+        return { success: false, error: "Invalid order parameter" };
+    }
+    try {
+        const result = await db.query(`SELECT * FROM words WHERE user_id = $1 AND list = TRUE ORDER BY ${order} LIMIT $2 OFFSET $3`, [userId, limit, skip]);
+        return { success: true, words: result.rows };
+    } catch (error) {
+        console.error("Error fetching list words by order:", error);
+        return { success: false, error: "Failed to fetch list words by order" };
     }
 }

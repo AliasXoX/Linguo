@@ -33,7 +33,7 @@ export default async function Learn() {
             initMode={mode}
             userId={userId}
             initBoxes={initBoxes}
-            initWord={initWordResult.success ? { word: initWordResult.word, id: initWordResult.id } : { word: "", id: null }}
+            initWord={initWordResult.success ? { word: initWordResult.word, id: initWordResult.id, list: initWordResult.list } : { word: "", id: null, list: null }}
           />
         </div>
     </main>

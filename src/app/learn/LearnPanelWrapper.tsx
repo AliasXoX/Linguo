@@ -4,7 +4,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import { LearnPanel } from '@/components/organisms/LearnPanel/LearnPanel';
-import { submitAnswer, getNextWord, getBoxCount, getWord } from '@/app/actions/words';
+import { submitAnswer, getNextWord, getBoxCount, getWord, addWordToList, removeWordFromList } from '@/app/actions/words';
 
 interface LearnPanelWrapperProps {
   initMode: string;
@@ -13,7 +13,7 @@ interface LearnPanelWrapperProps {
     rest: number;
     total: number;
   }>;
-  initWord: { word: string; id: number | null };
+  initWord: { word: string; id: number; list: boolean | null };
 }
 
 export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: LearnPanelWrapperProps) {
@@ -39,9 +39,35 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
     await updateBoxes(newMode);
     getNextWord(userId, 0, newMode, []).then(result => {
       if (result.success) {
-        setInputWord({ word: result.word, id: result.id });
+        setInputWord({ word: result.word, id: result.id, list: result.list });
       }
     });
+  }
+
+  const handleList = async (id: number, addToList: boolean) => {
+      if (addToList) {
+          const result = await addWordToList(userId, id);
+          if (result.success) {
+              // Update the word's list status in the local state
+              setInputWord(prevWord => {
+                if (prevWord && prevWord.id === id) {
+                  return { ...prevWord, list: true };
+                }
+                return prevWord;
+              });
+          }
+      } else {
+          const result = await removeWordFromList(userId, id);
+          if (result.success) {
+              // Update the word's list status in the local state
+              setInputWord(prevWord => {
+                if (prevWord && prevWord.id === id) {
+                  return { ...prevWord, list: false };
+                }
+                return prevWord;
+              });
+          }
+      }
   }
 
   async function updateBoxes(mode: string) {
@@ -72,7 +98,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
       if (result.correct) {
         const nextWord = await getNextWord(userId, selectedBox, mode, []);
         if (nextWord.success) {
-          setInputWord({ word: nextWord.word, id: nextWord.id });
+          setInputWord({ word: nextWord.word, id: nextWord.id, list: nextWord.list });
           setUpdate(true);
         }
       }
@@ -90,7 +116,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
     setSelectedBox(newBox);
     const result = await getNextWord(userId, newBox, mode, []);
     if (result.success) {
-      setInputWord({ word: result.word, id: result.id });
+      setInputWord({ word: result.word, id: result.id, list: result.list });
     }
   }
 
@@ -114,7 +140,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
   async function handleNext() {
     const result = await getNextWord(userId, selectedBox, mode, []);
     if (result.success) {
-      setInputWord({ word: result.word, id: result.id });
+      setInputWord({ word: result.word, id: result.id, list: result.list });
       setUpdate(true);
     }
     setVisibleState(null);
@@ -132,6 +158,7 @@ export function LearnPanelWrapper({ initMode, userId, initBoxes, initWord }: Lea
       state={visibleState}
       handleSkip={handleSkip}
       handleNext={handleNext}
+      handleList={handleList}
 
     />
   );

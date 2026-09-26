@@ -15,4 +15,5 @@ CREATE TABLE words (
     date date,
     box_pinyin integer, /*From simplified chinese to pinyin*/
     date_pinyin date
+    list boolean DEFAULT FALSE,
 );
